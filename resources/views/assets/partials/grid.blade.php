@@ -21,13 +21,7 @@
         <div class="card-desc">Polygons: {{ number_format($asset->polygon_count ?: 0) }} • Format: {{ strtoupper($asset->original_extension) }} • Size: {{ $asset->formattedFileSize() }}</div>
     </div>
     <div class="card-foot">
-        <div class="card-avatar" style="overflow: hidden;">
-            @if($asset->thumbnail_path)
-                <img src="{{ asset('storage/' . $asset->thumbnail_path) }}" alt="{{ $asset->user->name ?? 'User' }}" style="width: 100%; height: 100%; object-fit: cover;">
-            @else
-                {{ strtoupper(substr($asset->user->name ?? 'U', 0, 2)) }}
-            @endif
-        </div>
+        <div class="card-avatar">{{ strtoupper(substr($asset->user->name ?? 'U', 0, 2)) }}</div>
         <div class="card-author">{{ $asset->user->name ?? 'User' }}</div>
         <div class="card-bullet">•</div>
         <div class="card-date">{{ $asset->created_at->format('M d, Y') }}</div>
