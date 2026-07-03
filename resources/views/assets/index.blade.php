@@ -3,23 +3,60 @@
 
 @section('content')
 
-<div class="hero">
-    <div class="hero-tag">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        3D Asset Management
-    </div>
-    <h1 class="hero-title">Your studio's <span>3D asset</span><br>library — all in one place.</h1>
-    <p class="hero-sub">Upload, convert, and preview .blend, .fbx, and .obj files directly in the browser.</p>
+@if($featuredAssets->isNotEmpty())
+<div class="hero-bento">
+    @php
+        $largeFeatured = $featuredAssets->first();
+        $smallFeatured = $featuredAssets->skip(1)->take(2);
+    @endphp
+    
+    <a href="{{ route('assets.show', $largeFeatured) }}" class="bento-card bento-large">
+        @if($largeFeatured->thumbnail_path)
+            <img src="{{ asset('storage/' . $largeFeatured->thumbnail_path) }}" class="bento-img" alt="{{ $largeFeatured->title }}">
+        @endif
+        <div class="bento-overlay"></div>
+        <div class="bento-content">
+            <h2 class="bento-title">{{ $largeFeatured->title }}</h2>
+            <div class="bento-meta">
+                <span class="bento-author">{{ $largeFeatured->user->name ?? 'User' }}</span>
+                <span class="bento-date">{{ $largeFeatured->created_at->format('M d, Y') }}</span>
+            </div>
+            <div class="bento-badge">{{ strtoupper($largeFeatured->category ?? '3D') }}</div>
+        </div>
+    </a>
 
+    @if($smallFeatured->isNotEmpty())
+    <div class="bento-sidebar">
+        @foreach($smallFeatured as $sAsset)
+        <a href="{{ route('assets.show', $sAsset) }}" class="bento-card bento-small">
+            @if($sAsset->thumbnail_path)
+                <img src="{{ asset('storage/' . $sAsset->thumbnail_path) }}" class="bento-img" alt="{{ $sAsset->title }}">
+            @endif
+            <div class="bento-overlay"></div>
+            <div class="bento-badge-top">{{ strtoupper($sAsset->category ?? '3D') }}</div>
+            <div class="bento-content">
+                <h3 class="bento-title">{{ $sAsset->title }}</h3>
+            </div>
+        </a>
+        @endforeach
+    </div>
+    @endif
+</div>
+@endif
+
+<div class="section-header">
+    <h2 class="section-title">Recent Uploads</h2>
+    <p class="section-desc">Browse and download the latest 3D models from our studio community.</p>
 </div>
 
 <div class="filter-bar">
     <div class="filter-row">
-        <a href="{{ route('assets.index') }}" class="chip {{ !request('category') ? 'on' : '' }}">All</a>
+        <div class="filter-icon">
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+        </div>
+        <button class="chip active" data-category="">All</button>
         @foreach(['character','environment','prop','vehicle','weapon'] as $cat)
-        <a href="{{ route('assets.index', ['category' => $cat]) }}" class="chip {{ request('category') === $cat ? 'on' : '' }}">
-            {{ ucfirst($cat) }}
-        </a>
+        <button class="chip" data-category="{{ $cat }}">{{ ucfirst($cat) }}</button>
         @endforeach
     </div>
 </div>
@@ -32,36 +69,88 @@
     <a href="{{ route('assets.create') }}" class="btn-primary">+ Upload Asset</a>
 </div>
 @else
-<div class="asset-grid">
-    @php $thumbs = ['thumb-1','thumb-2','thumb-3','thumb-4','thumb-5','thumb-6']; @endphp
-    @foreach($assets as $i => $asset)
-    <a href="{{ route('assets.show', $asset) }}" class="asset-card">
-        <div class="card-thumb {{ $thumbs[$i % 6] }}">
-            <div class="thumb-icon">
-                @if($asset->thumbnail_path)
-                    <img src="{{ asset('storage/' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}">
-                @else
-                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                @endif
-            </div>
-            <div class="card-overlay"><div class="overlay-btn">Preview →</div></div>
-            <span class="card-status s-{{ $asset->status }}">{{ $asset->status }}</span>
-        </div>
-        <div class="card-body">
-            <div class="card-name">{{ $asset->title }}</div>
-            <div class="card-meta">
-                <span class="card-cat">{{ $asset->category ?? 'Uncategorized' }} · v{{ $asset->version }}</span>
-                <span class="card-size">{{ $asset->formattedFileSize() }}</span>
-            </div>
-        </div>
-        <div class="card-foot">
-            <span class="card-ext">.{{ $asset->original_extension }}</span>
-            <span class="card-date">{{ $asset->created_at->format('d M Y') }}</span>
-        </div>
-    </a>
-    @endforeach
+<div class="asset-grid" id="assetGrid">
+    @include('assets.partials.grid', ['assets' => $assets])
 </div>
-<div style="margin-top: 24px;">{{ $assets->links() }}</div>
+
+@if($assets->hasMorePages())
+<div class="load-more-container">
+    <button id="loadMoreBtn" class="btn-load-more" data-next-page="{{ $assets->nextPageUrl() }}">Load More</button>
+</div>
+@endif
 @endif
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const assetGrid = document.getElementById('assetGrid');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const filterButtons = document.querySelectorAll('.filter-row .chip');
+    let currentCategory = '';
+
+    function fetchAssets(url, append = false) {
+        if(loadMoreBtn) loadMoreBtn.innerText = 'Loading...';
+        
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(append) {
+                assetGrid.insertAdjacentHTML('beforeend', data.html);
+            } else {
+                assetGrid.innerHTML = data.html;
+            }
+
+            if (data.next_page) {
+                if(!loadMoreBtn) {
+                    // Create load more button if it doesn't exist
+                    const container = document.createElement('div');
+                    container.className = 'load-more-container';
+                    container.innerHTML = `<button id="loadMoreBtn" class="btn-load-more" data-next-page="${data.next_page}">Load More</button>`;
+                    assetGrid.parentNode.insertBefore(container, assetGrid.nextSibling);
+                    // Rebind event listener
+                    document.getElementById('loadMoreBtn').addEventListener('click', handleLoadMore);
+                } else {
+                    loadMoreBtn.dataset.nextPage = data.next_page;
+                    loadMoreBtn.style.display = 'inline-flex';
+                    loadMoreBtn.innerText = 'Load More';
+                }
+            } else {
+                if(loadMoreBtn) loadMoreBtn.style.display = 'none';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            if(loadMoreBtn) loadMoreBtn.innerText = 'Load More';
+        });
+    }
+
+    function handleLoadMore() {
+        const btn = document.getElementById('loadMoreBtn');
+        if(!btn || !btn.dataset.nextPage) return;
+        fetchAssets(btn.dataset.nextPage, true);
+    }
+
+    if(loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', handleLoadMore);
+    }
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            filterButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            currentCategory = this.dataset.category;
+            const url = `{{ route('assets.index') }}?category=${currentCategory}`;
+            fetchAssets(url, false);
+        });
+    });
+});
+</script>
+@endpush

@@ -44,13 +44,31 @@ class AssetController extends Controller
         return view('landing', compact('assets', 'featuredAsset', 'popularTags'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $assets = Asset::where('user_id', Auth::id())
-            ->latest()
-            ->paginate(12);
+        $query = Asset::where('user_id', Auth::id())->latest();
 
-        return view('assets.index', compact('assets'));
+        if ($request->has('category') && !empty($request->category)) {
+            $query->where('category', $request->category);
+        }
+
+        $assets = $query->paginate(12);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('assets.partials.grid', compact('assets'))->render(),
+                'next_page' => $assets->nextPageUrl()
+            ]);
+        }
+
+        // Fetch top 3 featured assets (is_staff_pick first, then fallback to newest)
+        $featuredAssets = Asset::where('user_id', Auth::id())
+            ->orderByDesc('is_staff_pick')
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('assets.index', compact('assets', 'featuredAssets'));
     }
 
     public function searchTags(Request $request)
