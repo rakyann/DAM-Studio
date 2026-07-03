@@ -80,12 +80,12 @@ class AssetController extends Controller
         $file         = $request->file('file');
         $extension    = strtolower($file->getClientOriginalExtension());
         
-        // Simpan file original secara permanen di disk public
-        $originalPath = $file->store('assets/originals', 'public');
+        // Simpan file original secara permanen di disk local (secure_assets) sesuai PRD
+        $originalPath = $file->store('secure_assets', 'local');
         
         // Buat temporary copy untuk proses konversi karena job/service akan mengubah nama dan menghapusnya
         $tempPath     = 'temp/' . basename($originalPath);
-        Storage::disk('local')->put($tempPath, Storage::disk('public')->readStream($originalPath));
+        Storage::disk('local')->put($tempPath, Storage::disk('local')->readStream($originalPath));
         $fullTempPath = Storage::disk('local')->path($tempPath);
 
         $tags = $request->tags
@@ -143,27 +143,50 @@ class AssetController extends Controller
 
     public function download(Asset $asset)
     {
-        // Enforce visibility
+        // Enforce visibility (Guests should not be able to download at all)
+        if (!Auth::check()) {
+            abort(403, 'Anda harus login untuk mengunduh asset ini.');
+        }
+
         if ($asset->visibility === AssetVisibility::PRIVATE && $asset->user_id !== Auth::id()) {
             abort(403, 'Unauthorized access to private asset.');
         }
 
-        if (!$asset->master_zip_path || !Storage::disk('public')->exists($asset->master_zip_path)) {
-            abort(404, 'File original tidak ditemukan.');
+        // Backward compatibility: use original_file_path if master_zip_path is empty
+        $filePath = $asset->master_zip_path ?: $asset->original_file_path;
+
+        // Check which disk contains the file (local for new secure_assets, public for older assets)
+        $disk = 'local';
+        if (!Storage::disk('local')->exists($filePath)) {
+            if (Storage::disk('public')->exists($filePath)) {
+                $disk = 'public';
+            } else {
+                abort(404, 'File original tidak ditemukan.');
+            }
         }
 
         $filename = "{$asset->title}.{$asset->original_extension}";
 
-        return Storage::disk('public')->download($asset->master_zip_path, $filename);
+        \Illuminate\Support\Facades\Log::info('Downloading asset', [
+            'asset_id' => $asset->id,
+            'disk' => $disk,
+            'path' => $filePath,
+        ]);
+
+        return Storage::disk($disk)->download($filePath, $filename);
     }
 
     public function destroy(Asset $asset)
     {
         if ($asset->master_zip_path) {
-            Storage::disk('public')->delete($asset->master_zip_path);
+            Storage::disk('local')->exists($asset->master_zip_path) 
+                ? Storage::disk('local')->delete($asset->master_zip_path)
+                : Storage::disk('public')->delete($asset->master_zip_path);
         }
         if ($asset->original_file_path && $asset->original_file_path !== $asset->master_zip_path) {
-            Storage::disk('public')->delete($asset->original_file_path);
+            Storage::disk('local')->exists($asset->original_file_path)
+                ? Storage::disk('local')->delete($asset->original_file_path)
+                : Storage::disk('public')->delete($asset->original_file_path);
         }
         if ($asset->viewer_glb_path) {
             Storage::disk('public')->delete($asset->viewer_glb_path);
