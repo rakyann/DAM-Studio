@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AssetStatus;
+use App\Enums\AssetVisibility;
 use App\Jobs\ConvertAssetJob;
 use App\Models\Asset;
 use Illuminate\Http\Request;
@@ -124,7 +125,7 @@ class AssetController extends Controller
     public function show(Asset $asset)
     {
         // Enforce visibility
-        if ($asset->visibility === App\Enums\AssetVisibility::PRIVATE && $asset->user_id !== Auth::id()) {
+        if ($asset->visibility === AssetVisibility::PRIVATE && $asset->user_id !== Auth::id()) {
             abort(403, 'Unauthorized access to private asset.');
         }
 
@@ -142,7 +143,7 @@ class AssetController extends Controller
     public function download(Asset $asset)
     {
         // Enforce visibility
-        if ($asset->visibility === App\Enums\AssetVisibility::PRIVATE && $asset->user_id !== Auth::id()) {
+        if ($asset->visibility === AssetVisibility::PRIVATE && $asset->user_id !== Auth::id()) {
             abort(403, 'Unauthorized access to private asset.');
         }
 
