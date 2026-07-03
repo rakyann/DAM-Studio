@@ -1467,3 +1467,167 @@ nav[role="navigation"] span[aria-current="page"] span {
 .footer-legal a:hover {
   color: var(--primary-on-dark);
 }
+
+/* Auth Layout (Login & Register) */
+.auth-layout {
+  background: var(--canvas-parchment);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.auth-wrapper {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  margin-bottom: 40px;
+}
+
+.auth-card {
+  width: 100%;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--rounded-lg);
+  padding: 40px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.auth-sub {
+  font-size: 15px;
+  color: var(--ink-muted-80);
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.auth-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-muted-80);
+  cursor: pointer;
+}
+
+.auth-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.auth-foot {
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-muted-80);
+}
+
+/* Profile Tabs */
+.profile-tabs {
+  display: flex;
+  gap: 32px;
+  padding: 0 40px;
+  background: var(--canvas-parchment);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.profile-tab {
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-muted-80);
+  padding: 16px 0;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.profile-tab:hover {
+  color: var(--ink);
+}
+
+.profile-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Settings Edit Form */
+.settings-container {
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.settings-card {
+  padding: 32px;
+}
+
+.settings-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.settings-desc {
+  font-size: 15px;
+  color: var(--ink-muted-80);
+  margin-bottom: 24px;
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.settings-saved {
+  font-size: 14px;
+  color: #34c759;
+  font-weight: 500;
+}
