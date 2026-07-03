@@ -26,7 +26,7 @@
     <div class="nav-right">
         <div class="nav-action-pill">
             <a href="{{ route('assets.create') }}" class="nav-upload-btn">+ Upload</a>
-            <div class="nav-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+            <a href="{{ route('profile.edit') }}" class="nav-avatar" title="Profile">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</a>
             <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                 @csrf
                 <button type="submit" class="nav-logout-icon" title="Logout">

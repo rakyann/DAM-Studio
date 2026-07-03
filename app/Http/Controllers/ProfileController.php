@@ -14,10 +14,24 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request): View|\Illuminate\Http\JsonResponse
     {
+        $user = $request->user();
+        
+        $assets = \App\Models\Asset::where('user_id', $user->id)
+            ->latest()
+            ->paginate(12);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('assets.partials.grid', compact('assets'))->render(),
+                'next_page' => $assets->nextPageUrl()
+            ]);
+        }
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'assets' => $assets
         ]);
     }
 

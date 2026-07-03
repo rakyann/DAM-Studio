@@ -10,6 +10,7 @@
             @endif
         </div>
         <div class="card-badge">{{ strtoupper($asset->category ?? '3D') }}</div>
+        <div class="card-status s-{{ $asset->status }}">{{ $asset->status }}</div>
         <div class="card-overlay"><div class="overlay-btn">Preview →</div></div>
     </div>
     <div class="card-body">
