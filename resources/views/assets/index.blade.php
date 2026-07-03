@@ -13,6 +13,8 @@
     <a href="{{ route('assets.show', $largeFeatured) }}" class="bento-card bento-large">
         @if($largeFeatured->thumbnail_path)
             <img src="{{ asset('storage/' . $largeFeatured->thumbnail_path) }}" class="bento-img" alt="{{ $largeFeatured->title }}">
+        @else
+            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 700; color: var(--surface-tile-2); text-transform: uppercase;">.{{ $largeFeatured->original_extension }}</div>
         @endif
         <div class="bento-overlay"></div>
         <div class="bento-content">
@@ -31,6 +33,8 @@
         <a href="{{ route('assets.show', $sAsset) }}" class="bento-card bento-small">
             @if($sAsset->thumbnail_path)
                 <img src="{{ asset('storage/' . $sAsset->thumbnail_path) }}" class="bento-img" alt="{{ $sAsset->title }}">
+            @else
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: var(--surface-tile-2); text-transform: uppercase;">.{{ $sAsset->original_extension }}</div>
             @endif
             <div class="bento-overlay"></div>
             <div class="bento-badge-top">{{ strtoupper($sAsset->category ?? '3D') }}</div>

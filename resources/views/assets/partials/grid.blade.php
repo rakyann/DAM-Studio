@@ -6,7 +6,7 @@
             @if($asset->thumbnail_path)
                 <img src="{{ asset('storage/' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}">
             @else
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <div style="font-size: 24px; font-weight: 700; color: var(--ink-muted-48); text-transform: uppercase;">.{{ $asset->original_extension }}</div>
             @endif
         </div>
         <div class="card-badge">{{ strtoupper($asset->category ?? '3D') }}</div>
