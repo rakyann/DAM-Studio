@@ -71,6 +71,11 @@ class Asset extends Model
         $query->where('visibility', AssetVisibility::PUBLIC->value);
     }
 
+    public function scopeCompleted(Builder $query): void
+    {
+        $query->where('status', AssetStatus::COMPLETED->value);
+    }
+
     public function scopeStaffPicked(Builder $query): void
     {
         $query->where('is_staff_pick', true);

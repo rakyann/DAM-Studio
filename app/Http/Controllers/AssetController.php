@@ -11,10 +11,36 @@ use Illuminate\Support\Facades\Storage;
 
 class AssetController extends Controller
 {
-    public function guestIndex()
+    public function guestIndex(Request $request)
     {
-        $assets = Asset::public()->latest()->paginate(12);
-        return view('welcome', compact('assets')); // We will build welcome.blade.php in Phase 4
+        $query = Asset::public()->completed()->latest();
+
+        // If tag is selected, filter by tag
+        if ($request->has('tag') && !empty($request->tag)) {
+            $query->whereHas('tags', function ($q) use ($request) {
+                $q->where('name', $request->tag)->orWhere('slug', $request->tag);
+            });
+        }
+
+        $assets = $query->paginate(12);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('partials.discovery_grid', compact('assets'))->render()
+            ]);
+        }
+
+        $featuredAsset = Asset::public()->completed()->latest()->staffPicked()->first();
+        if (!$featuredAsset) {
+            $featuredAsset = Asset::public()->completed()->latest()->first();
+        }
+
+        $popularTags = \App\Models\Tag::withCount('assets')
+            ->orderByDesc('assets_count')
+            ->limit(10)
+            ->get();
+
+        return view('landing', compact('assets', 'featuredAsset', 'popularTags'));
     }
 
     public function index()
