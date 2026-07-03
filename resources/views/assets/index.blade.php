@@ -10,24 +10,10 @@
     </div>
     <h1 class="hero-title">Your studio's <span>3D asset</span><br>library — all in one place.</h1>
     <p class="hero-sub">Upload, convert, and preview .blend, .fbx, and .obj files directly in the browser.</p>
-    <div class="hero-stats">
-        <div>
-            <div class="hero-stat-val">{{ $assets->total() }}</div>
-            <div class="hero-stat-label">Total assets</div>
-        </div>
-        <div>
-            <div class="hero-stat-val">{{ round($assets->sum('file_size') / 1024 / 1024, 1) }} MB</div>
-            <div class="hero-stat-label">Storage used</div>
-        </div>
-        <div>
-            <div class="hero-stat-val">{{ $assets->where('status', 'completed')->count() }}</div>
-            <div class="hero-stat-label">Converted</div>
-        </div>
-    </div>
+
 </div>
 
-<div class="toolbar">
-    <span class="toolbar-label">Recent uploads</span>
+<div class="filter-bar">
     <div class="filter-row">
         <a href="{{ route('assets.index') }}" class="chip {{ !request('category') ? 'on' : '' }}">All</a>
         @foreach(['character','environment','prop','vehicle','weapon'] as $cat)
