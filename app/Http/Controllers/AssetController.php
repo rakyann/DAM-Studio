@@ -27,7 +27,7 @@ class AssetController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
+            'title'     => 'required|string|max:255',
             'category' => 'nullable|string|max:100',
             'tags'     => 'nullable|string',
             'version'  => 'required|integer|min:1',
@@ -51,13 +51,13 @@ class AssetController extends Controller
 
         $asset = Asset::create([
             'user_id'            => Auth::id(),
-            'name'               => $request->name,
+            'title'              => $request->title,
             'category'           => $request->category,
             'tags'               => $tags,
             'version'            => $request->version,
             'original_extension' => $extension,
             'original_file_path' => $originalPath,
-            'status'             => 'pending',
+            'status'             => 'queued',
         ]);
 
         ConvertAssetJob::dispatchSync($asset, $fullTempPath);
@@ -72,7 +72,7 @@ class AssetController extends Controller
         $thumbnailUrl = null;
 
         if ($asset->isReady()) {
-            $viewerUrl    = asset('storage/' . $asset->converted_file_path);
+            $viewerUrl    = asset('storage/' . $asset->viewer_glb_path);
             $thumbnailUrl = asset('storage/' . $asset->thumbnail_path);
         }
 
@@ -85,7 +85,7 @@ class AssetController extends Controller
             abort(404, 'File original tidak ditemukan.');
         }
 
-        $filename = "{$asset->name}.{$asset->original_extension}";
+        $filename = "{$asset->title}.{$asset->original_extension}";
 
         return Storage::disk('public')->download($asset->original_file_path, $filename);
     }
@@ -95,8 +95,8 @@ class AssetController extends Controller
         if ($asset->original_file_path) {
             Storage::disk('public')->delete($asset->original_file_path);
         }
-        if ($asset->converted_file_path) {
-            Storage::disk('public')->delete($asset->converted_file_path);
+        if ($asset->viewer_glb_path) {
+            Storage::disk('public')->delete($asset->viewer_glb_path);
         }
         if ($asset->thumbnail_path) {
             Storage::disk('public')->delete($asset->thumbnail_path);

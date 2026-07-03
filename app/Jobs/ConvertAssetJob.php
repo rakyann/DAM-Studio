@@ -46,10 +46,10 @@ class ConvertAssetJob implements ShouldQueue
 
             // Update asset dengan hasil konversi
             $this->asset->update([
-                'converted_file_path' => $result['converted_file_path'],
+                'viewer_glb_path'     => $result['converted_file_path'],
                 'thumbnail_path'      => $result['thumbnail_path'],
                 'file_size'           => $result['file_size'],
-                'status'              => 'done',
+                'status'              => 'completed',
             ]);
 
             Log::info('Conversion completed', ['asset_id' => $this->asset->id]);

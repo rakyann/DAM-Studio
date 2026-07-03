@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title', $asset->name . ' — DAM Studio')
+@section('title', $asset->title . ' — DAM Studio')
 
 @section('content')
 
 <div class="breadcrumb">
     <a href="{{ route('assets.index') }}">Library</a>
     <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-    <span>{{ $asset->name }}</span>
+    <span>{{ $asset->title }}</span>
 </div>
 
 <div class="detail-grid">
@@ -34,7 +34,8 @@
     </div>
 
     <div class="info-card">
-        <div class="info-name">{{ $asset->name }}</div>
+        <div class="info-name">{{ $asset->title }}</div>
+        <div class="stat-value">{{ number_format($asset->polygon_count) }}</div>
         <div class="info-version">v{{ $asset->version }}</div>
 
         <div class="meta-row"><span class="meta-key">Kategori</span><span class="meta-val">{{ $asset->category ?? '—' }}</span></div>

@@ -20,7 +20,7 @@
             <div class="hero-stat-label">Storage used</div>
         </div>
         <div>
-            <div class="hero-stat-val">{{ $assets->where('status', 'done')->count() }}</div>
+            <div class="hero-stat-val">{{ $assets->where('status', 'completed')->count() }}</div>
             <div class="hero-stat-label">Converted</div>
         </div>
     </div>
@@ -53,7 +53,7 @@
         <div class="card-thumb {{ $thumbs[$i % 6] }}">
             <div class="thumb-icon">
                 @if($asset->thumbnail_path)
-                    <img src="{{ asset('storage/' . $asset->thumbnail_path) }}" alt="{{ $asset->name }}">
+                    <img src="{{ asset('storage/' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}">
                 @else
                     <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                 @endif
@@ -62,7 +62,7 @@
             <span class="card-status s-{{ $asset->status }}">{{ $asset->status }}</span>
         </div>
         <div class="card-body">
-            <div class="card-name">{{ $asset->name }}</div>
+            <div class="card-name">{{ $asset->title }}</div>
             <div class="card-meta">
                 <span class="card-cat">{{ $asset->category ?? 'Uncategorized' }} · v{{ $asset->version }}</span>
                 <span class="card-size">{{ $asset->formattedFileSize() }}</span>

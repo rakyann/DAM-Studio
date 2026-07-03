@@ -11,24 +11,30 @@ class Asset extends Model
 {
     protected $fillable = [
         'user_id',
-        'name',
+        'title',
         'slug',
         'category',
         'original_extension',
         'original_file_path',
-        'converted_file_path',
+        'master_zip_path',
+        'viewer_glb_path',
         'thumbnail_path',
         'version',
         'file_size',
-        'poly_count',
+        'polygon_count',
+        'vertex_count',
         'tags',
         'status',
+        'visibility',
+        'is_staff_pick',
+        'error_log',
     ];
 
     protected $casts = [
         'tags' => 'array',
         'file_size' => 'integer',
-        'poly_count' => 'integer',
+        'polygon_count' => 'integer',
+        'vertex_count' => 'integer',
         'version' => 'integer',
     ];
 
@@ -36,7 +42,7 @@ class Asset extends Model
     protected static function booted(): void
     {
         static::creating(function (Asset $asset) {
-            $asset->slug = Str::slug($asset->name) . '-' . Str::random(6);
+            $asset->slug = Str::slug($asset->title) . '-' . Str::random(6);
         });
     }
 
@@ -53,7 +59,7 @@ class Asset extends Model
     // Helper: cek apakah asset sudah selesai dikonversi
     public function isReady(): bool
     {
-        return $this->status === 'done';
+        return $this->status === 'completed';
     }
 
     // Helper: format file size ke KB/MB

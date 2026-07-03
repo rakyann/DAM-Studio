@@ -12,8 +12,8 @@
 
             <div class="form-group">
                 <label class="form-label">Nama Asset</label>
-                <input type="text" name="name" value="{{ old('name') }}" class="form-input" placeholder="contoh: Hero Character v3">
-                @error('name')<p class="form-error">{{ $message }}</p>@enderror
+                <input type="text" name="title" value="{{ old('title') }}" class="form-input" placeholder="contoh: Hero Character v3">
+                @error('title')<p class="form-error">{{ $message }}</p>@enderror
             </div>
 
             <div class="form-row">
