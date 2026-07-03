@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AssetStatus;
 use App\Jobs\ConvertAssetJob;
 use App\Models\Asset;
 use Illuminate\Http\Request;
@@ -56,7 +57,7 @@ class AssetController extends Controller
             'version'            => $request->version,
             'original_extension' => $extension,
             'original_file_path' => $originalPath,
-            'status'             => 'queued',
+            'status'             => AssetStatus::QUEUED->value,
         ]);
 
         if (!empty($tags)) {

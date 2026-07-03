@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\AssetStatus;
 use App\Models\Asset;
 use App\Services\ConversionService;
 use Illuminate\Bus\Queueable;
@@ -32,7 +33,7 @@ class ConvertAssetJob implements ShouldQueue
         Log::info('Starting conversion job', ['asset_id' => $this->asset->id]);
 
         // Update status jadi processing
-        $this->asset->update(['status' => 'processing']);
+        $this->asset->update(['status' => AssetStatus::PROCESSING->value]);
 
         // Path S3 untuk asset ini
         $s3BasePath = "assets/{$this->asset->slug}/v{$this->asset->version}";
@@ -49,7 +50,7 @@ class ConvertAssetJob implements ShouldQueue
                 'viewer_glb_path'     => $result['converted_file_path'],
                 'thumbnail_path'      => $result['thumbnail_path'],
                 'file_size'           => $result['file_size'],
-                'status'              => 'completed',
+                'status'              => AssetStatus::COMPLETED->value,
             ]);
 
             Log::info('Conversion completed', ['asset_id' => $this->asset->id]);
@@ -60,7 +61,7 @@ class ConvertAssetJob implements ShouldQueue
                 'error'    => $e->getMessage(),
             ]);
 
-            $this->asset->update(['status' => 'failed']);
+            $this->asset->update(['status' => AssetStatus::FAILED->value]);
 
             // Re-throw agar queue tahu job ini gagal
             throw $e;
@@ -74,6 +75,6 @@ class ConvertAssetJob implements ShouldQueue
             'error'    => $e->getMessage(),
         ]);
 
-        $this->asset->update(['status' => 'failed']);
+        $this->asset->update(['status' => AssetStatus::FAILED->value]);
     }
 }

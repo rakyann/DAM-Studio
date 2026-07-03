@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\AssetStatus;
+use App\Enums\AssetVisibility;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -34,6 +38,8 @@ class Asset extends Model
         'polygon_count' => 'integer',
         'vertex_count' => 'integer',
         'version' => 'integer',
+        'status' => AssetStatus::class,
+        'visibility' => AssetVisibility::class,
     ];
 
     // Auto-generate slug dari name
@@ -49,7 +55,7 @@ class Asset extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function tags()
+    public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
     }
@@ -59,10 +65,37 @@ class Asset extends Model
         return $this->hasMany(AssetVersion::class);
     }
 
+    // Scopes
+    public function scopePublic(Builder $query): void
+    {
+        $query->where('visibility', AssetVisibility::PUBLIC->value);
+    }
+
+    public function scopeStaffPicked(Builder $query): void
+    {
+        $query->where('is_staff_pick', true);
+    }
+
+    // Sync from latest completed version
+    public function syncFromLatestVersion(): void
+    {
+        $latest = $this->versions()->where('status', AssetStatus::COMPLETED->value)->orderByDesc('version_number')->first();
+        if ($latest) {
+            $this->update([
+                'master_zip_path' => $latest->master_zip_path,
+                'viewer_glb_path' => $latest->viewer_glb_path,
+                'thumbnail_path' => $latest->thumbnail_path,
+                'polygon_count' => $latest->polygon_count,
+                'vertex_count' => $latest->vertex_count,
+                'file_size' => $latest->file_size,
+            ]);
+        }
+    }
+
     // Helper: cek apakah asset sudah selesai dikonversi
     public function isReady(): bool
     {
-        return $this->status === 'completed';
+        return $this->status === AssetStatus::COMPLETED;
     }
 
     // Helper: format file size ke KB/MB

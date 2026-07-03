@@ -28,10 +28,17 @@ class AssetVersion extends Model
         'vertex_count' => 'integer',
         'version_number' => 'integer',
         'created_at' => 'datetime',
+        'status' => \App\Enums\AssetStatus::class,
     ];
 
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function scopeLatestCompleted($query)
+    {
+        $query->where('status', \App\Enums\AssetStatus::COMPLETED->value)
+              ->orderByDesc('version_number');
     }
 }
