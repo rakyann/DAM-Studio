@@ -54,6 +54,15 @@
     <!-- Discovery Grid Section -->
     <section class="discovery-section">
         <h2 class="display-lg section-title">Discover</h2>
+
+        @if($popularTags->count() > 0)
+        <div class="tags-bar">
+            <button class="tag-filter-pill active" data-tag="">All</button>
+            @foreach($popularTags as $tag)
+                <button class="tag-filter-pill" data-tag="{{ $tag->slug }}">{{ $tag->name }}</button>
+            @endforeach
+        </div>
+        @endif
         
         <div id="grid-wrapper">
             @include('partials.discovery_grid', ['assets' => $assets])
@@ -151,11 +160,41 @@
             animate();
         });
 
-        // Turntable logic
+        // Tag Filtering Logic
         document.addEventListener('DOMContentLoaded', () => {
+            const filterButtons = document.querySelectorAll('.tag-filter-pill');
+            const gridWrapper = document.getElementById('grid-wrapper');
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    // Update active state
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const tag = btn.getAttribute('data-tag');
+                    try {
+                        const response = await fetch(`/?tag=${tag}`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        const data = await response.json();
+                        gridWrapper.innerHTML = data.html;
+                        
+                        // Re-initialize turntables for new DOM elements
+                        initTurntables();
+                    } catch (error) {
+                        console.error('Error filtering assets:', error);
+                    }
+                });
+            });
+        });
+
+        function initTurntables() {
             const cards = document.querySelectorAll('.asset-card');
             
             cards.forEach(card => {
+                // ... same logic as before, refactored into function
                 const glbPath = card.getAttribute('data-glb');
                 const canvasContainer = card.querySelector('.turntable-canvas');
                 
@@ -215,7 +254,9 @@
                     }
                 });
             });
-        });
+        }
+
+        document.addEventListener('DOMContentLoaded', initTurntables);
     </script>
 
 </body>
