@@ -173,3 +173,106 @@ a {
   display: flex;
   gap: 20px;
 }
+
+/* Discovery Grid */
+.discovery-section {
+  padding: 80px 40px;
+  background-color: var(--canvas-parchment);
+  min-height: 50vh;
+}
+
+.section-title {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.asset-card {
+  background: var(--canvas);
+  border-radius: var(--rounded-lg);
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  transition: transform 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.asset-card:hover {
+  transform: translateY(-4px);
+}
+
+.card-thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background-color: var(--surface-tile-1);
+  overflow: hidden;
+}
+
+.card-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Turntable Canvas */
+.turntable-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.asset-card:hover .turntable-canvas {
+  opacity: 1;
+}
+.asset-card:hover .card-thumbnail img {
+  opacity: 0;
+}
+
+.card-info {
+  padding: 16px;
+}
+
+.card-info h3 {
+  margin-bottom: 4px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-action {
+  background-color: var(--surface-pearl);
+  border: 1px solid var(--hairline);
+  border-radius: var(--rounded-pill);
+  padding: 6px 12px;
+  font-size: var(--caption);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-action:hover {
+  background-color: #eee;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--body-muted);
+}

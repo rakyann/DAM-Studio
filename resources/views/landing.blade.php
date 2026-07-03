@@ -51,7 +51,16 @@
         @endif
     </section>
 
-    <!-- Script for Hero Section 3D Viewer -->
+    <!-- Discovery Grid Section -->
+    <section class="discovery-section">
+        <h2 class="display-lg section-title">Discover</h2>
+        
+        <div id="grid-wrapper">
+            @include('partials.discovery_grid', ['assets' => $assets])
+        </div>
+    </section>
+
+    <!-- Script for Hero Section 3D Viewer and Turntables -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('hero-canvas');
@@ -140,6 +149,72 @@
                 renderer.render(scene, camera);
             }
             animate();
+        });
+
+        // Turntable logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.asset-card');
+            
+            cards.forEach(card => {
+                const glbPath = card.getAttribute('data-glb');
+                const canvasContainer = card.querySelector('.turntable-canvas');
+                
+                if (!glbPath || !canvasContainer) return;
+
+                let scene, camera, renderer, model, reqId;
+                let isInitialized = false;
+
+                card.addEventListener('mouseenter', () => {
+                    if (!isInitialized) {
+                        scene = new THREE.Scene();
+                        camera = new THREE.PerspectiveCamera(45, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 100);
+                        camera.position.set(0, 1, 3);
+                        
+                        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                        renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+                        canvasContainer.appendChild(renderer.domElement);
+                        
+                        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                        scene.add(ambientLight);
+                        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                        dirLight.position.set(2, 5, 3);
+                        scene.add(dirLight);
+
+                        const loader = new THREE.GLTFLoader();
+                        loader.load(glbPath, (gltf) => {
+                            model = gltf.scene;
+                            const box = new THREE.Box3().setFromObject(model);
+                            const center = box.getCenter(new THREE.Vector3());
+                            model.position.x += (model.position.x - center.x);
+                            model.position.y += (model.position.y - center.y);
+                            model.position.z += (model.position.z - center.z);
+                            scene.add(model);
+                        });
+                        isInitialized = true;
+                    }
+
+                    function animateTurntable() {
+                        reqId = requestAnimationFrame(animateTurntable);
+                        if (model) {
+                            model.rotation.y += 0.02;
+                        }
+                        if (renderer && scene && camera) {
+                            renderer.render(scene, camera);
+                        }
+                    }
+                    animateTurntable();
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    if (reqId) {
+                        cancelAnimationFrame(reqId);
+                        reqId = null;
+                    }
+                    if (model) {
+                        model.rotation.y = 0; // reset
+                    }
+                });
+            });
         });
     </script>
 
