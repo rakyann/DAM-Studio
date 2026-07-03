@@ -99,6 +99,7 @@ class AssetController extends Controller
             'version'            => $request->version,
             'original_extension' => $extension,
             'original_file_path' => $originalPath,
+            'master_zip_path'    => $originalPath,
             'status'             => AssetStatus::QUEUED->value,
         ]);
 
@@ -147,18 +148,21 @@ class AssetController extends Controller
             abort(403, 'Unauthorized access to private asset.');
         }
 
-        if (!$asset->original_file_path || !Storage::disk('public')->exists($asset->original_file_path)) {
+        if (!$asset->master_zip_path || !Storage::disk('public')->exists($asset->master_zip_path)) {
             abort(404, 'File original tidak ditemukan.');
         }
 
         $filename = "{$asset->title}.{$asset->original_extension}";
 
-        return Storage::disk('public')->download($asset->original_file_path, $filename);
+        return Storage::disk('public')->download($asset->master_zip_path, $filename);
     }
 
     public function destroy(Asset $asset)
     {
-        if ($asset->original_file_path) {
+        if ($asset->master_zip_path) {
+            Storage::disk('public')->delete($asset->master_zip_path);
+        }
+        if ($asset->original_file_path && $asset->original_file_path !== $asset->master_zip_path) {
             Storage::disk('public')->delete($asset->original_file_path);
         }
         if ($asset->viewer_glb_path) {
