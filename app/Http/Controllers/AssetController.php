@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Storage;
 
 class AssetController extends Controller
 {
+    public function guestIndex()
+    {
+        $assets = Asset::public()->latest()->paginate(12);
+        return view('welcome', compact('assets')); // We will build welcome.blade.php in Phase 4
+    }
+
     public function index()
     {
         $assets = Asset::where('user_id', Auth::id())
@@ -18,6 +24,15 @@ class AssetController extends Controller
             ->paginate(12);
 
         return view('assets.index', compact('assets'));
+    }
+
+    public function searchTags(Request $request)
+    {
+        $query = $request->get('q', '');
+        $tags = \App\Models\Tag::where('name', 'like', "%{$query}%")
+            ->limit(10)
+            ->pluck('name');
+        return response()->json($tags);
     }
 
     public function create()
@@ -82,6 +97,11 @@ class AssetController extends Controller
 
     public function show(Asset $asset)
     {
+        // Enforce visibility
+        if ($asset->visibility === App\Enums\AssetVisibility::PRIVATE && $asset->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to private asset.');
+        }
+
         $viewerUrl    = null;
         $thumbnailUrl = null;
 
@@ -95,6 +115,11 @@ class AssetController extends Controller
 
     public function download(Asset $asset)
     {
+        // Enforce visibility
+        if ($asset->visibility === App\Enums\AssetVisibility::PRIVATE && $asset->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to private asset.');
+        }
+
         if (!$asset->original_file_path || !Storage::disk('public')->exists($asset->original_file_path)) {
             abort(404, 'File original tidak ditemukan.');
         }
