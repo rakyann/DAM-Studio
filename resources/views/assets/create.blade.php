@@ -11,15 +11,15 @@
             @csrf
 
             <div class="form-group">
-                <label class="form-label">Nama Asset</label>
-                <input type="text" name="title" value="{{ old('title') }}" class="form-input" placeholder="contoh: Hero Character v3">
+                <label class="form-label" for="title">Nama Asset</label>
+                <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-input" placeholder="contoh: Hero Character v3">
                 @error('title')<p class="form-error">{{ $message }}</p>@enderror
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Kategori</label>
-                    <select name="category" class="form-select">
+                    <label class="form-label" for="category">Kategori</label>
+                    <select id="category" name="category" class="form-select">
                         <option value="">Pilih kategori</option>
                         @foreach(['character','environment','prop','vehicle','weapon','other'] as $cat)
                         <option value="{{ $cat }}" {{ old('category') === $cat ? 'selected' : '' }}>{{ ucfirst($cat) }}</option>
@@ -27,22 +27,22 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Versi</label>
-                    <input type="number" name="version" value="{{ old('version', 1) }}" min="1" class="form-input">
+                    <label class="form-label" for="version">Versi</label>
+                    <input type="number" id="version" name="version" value="{{ old('version', 1) }}" min="1" class="form-input">
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Tags</label>
-                <input type="text" name="tags" value="{{ old('tags') }}" class="form-input" placeholder="hero, fantasy, rigged">
+                <label class="form-label" for="tags">Tags</label>
+                <input type="text" id="tags" name="tags" value="{{ old('tags') }}" class="form-input" placeholder="hero, fantasy, rigged">
                 <p class="form-hint">Pisahkan dengan koma</p>
             </div>
 
             <hr class="form-divider">
 
             <div class="form-group">
-                <label class="form-label">File 3D</label>
-                <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                <label class="form-label" for="fileInput">File 3D</label>
+                <div class="dropzone" id="dropzone" tabindex="0" onkeydown="if(event.key==='Enter') document.getElementById('fileInput').click()" onclick="document.getElementById('fileInput').click()">
                     <div class="dropzone-icon">
                         <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.338-2.32 5.75 5.75 0 011.844 11.095H6.75z"/></svg>
                     </div>

@@ -392,3 +392,175 @@ a {
   padding: 80px 20px;
   color: var(--body-muted);
 }
+
+/* Default SVG sizing constraint (Fix for oversized SVGs) */
+svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Upload Page & Form Styling */
+.upload-page {
+  padding: 80px 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-heading {
+  font-size: var(--display-lg);
+  font-weight: 600;
+  letter-spacing: 0px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.page-sub {
+  color: var(--body-muted);
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: var(--body-text);
+}
+
+.form-card {
+  background: var(--surface-pearl);
+  border-radius: var(--rounded-lg);
+  padding: 40px;
+  border: 1px solid var(--hairline);
+}
+
+.form-group {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-label {
+  font-size: var(--body-strong);
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.form-input, .form-select {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--rounded-sm);
+  padding: 12px 16px;
+  font-size: var(--body-text);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--primary-focus);
+}
+
+.form-hint {
+  font-size: var(--caption);
+  color: var(--ink-muted-48);
+  margin-top: 4px;
+}
+
+.form-error {
+  color: #ff3b30;
+  font-size: var(--caption);
+  margin-top: 4px;
+}
+
+.form-divider {
+  border: none;
+  border-top: 1px solid var(--divider-soft);
+  margin: 32px 0;
+}
+
+/* Dropzone */
+.dropzone {
+  max-width: 600px;
+  min-height: 240px;
+  margin: 0 auto;
+  border: 2px dashed var(--hairline);
+  border-radius: var(--rounded-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--canvas);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dropzone:hover, .dropzone.drag {
+  border-color: var(--primary);
+  background-color: var(--surface-pearl);
+}
+
+.dropzone-icon svg {
+  width: 48px;
+  height: 48px;
+  color: var(--ink-muted-48);
+  margin-bottom: 12px;
+}
+
+.dropzone-title {
+  font-size: var(--body-strong);
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.dropzone-sub {
+  font-size: var(--caption);
+  color: var(--ink-muted-48);
+}
+
+.file-selected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--surface-tile-2);
+  color: var(--on-dark);
+  border-radius: var(--rounded-sm);
+}
+
+.btn-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background-color: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  border-radius: var(--rounded-pill);
+  padding: 14px 24px;
+  font-size: var(--body-strong);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 32px;
+}
+
+.btn-submit:hover {
+  background-color: var(--primary-focus);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
