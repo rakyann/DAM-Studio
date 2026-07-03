@@ -47,11 +47,11 @@
         </div>
         <div class="meta-row"><span class="meta-key">Diupload</span><span class="meta-val">{{ $asset->created_at->format('d M Y') }}</span></div>
 
-        @if($asset->tags && count($asset->tags))
+        @if($asset->tags->count())
         <hr class="info-divider">
         <div class="tags-row">
             @foreach($asset->tags as $tag)
-            <span class="tag-pill">{{ $tag }}</span>
+            <span class="tag-pill">{{ $tag->name }}</span>
             @endforeach
         </div>
         @endif

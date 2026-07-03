@@ -53,12 +53,25 @@ class AssetController extends Controller
             'user_id'            => Auth::id(),
             'title'              => $request->title,
             'category'           => $request->category,
-            'tags'               => $tags,
             'version'            => $request->version,
             'original_extension' => $extension,
             'original_file_path' => $originalPath,
             'status'             => 'queued',
         ]);
+
+        if (!empty($tags)) {
+            $tagIds = [];
+            foreach ($tags as $tagName) {
+                if (empty($tagName)) continue;
+                $slug = \Illuminate\Support\Str::slug($tagName);
+                $tag = \App\Models\Tag::firstOrCreate(
+                    ['slug' => $slug],
+                    ['name' => $tagName]
+                );
+                $tagIds[] = $tag->id;
+            }
+            $asset->tags()->sync($tagIds);
+        }
 
         ConvertAssetJob::dispatchSync($asset, $fullTempPath);
 

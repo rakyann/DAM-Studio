@@ -23,7 +23,6 @@ class Asset extends Model
         'file_size',
         'polygon_count',
         'vertex_count',
-        'tags',
         'status',
         'visibility',
         'is_staff_pick',
@@ -31,7 +30,6 @@ class Asset extends Model
     ];
 
     protected $casts = [
-        'tags' => 'array',
         'file_size' => 'integer',
         'polygon_count' => 'integer',
         'vertex_count' => 'integer',
@@ -49,6 +47,11 @@ class Asset extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
     }
 
     public function versions(): HasMany
