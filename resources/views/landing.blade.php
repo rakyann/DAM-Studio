@@ -31,24 +31,53 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-section">
-        <div id="hero-canvas" class="hero-canvas"></div>
-        
-        <div class="hero-content">
+    <section class="hero-split-section">
+        <div class="hero-left">
+            <span class="hero-badge">For Creators</span>
+            
             @if($featuredAsset)
-                <h1 class="hero-display">{{ $featuredAsset->title }}</h1>
-                <p class="lead">By {{ $featuredAsset->user->name ?? 'Studio' }}</p>
+                <h1 class="hero-display">Showcase your 3D work <br><span class="hero-accent">and get discovered</span></h1>
             @else
-                <h1 class="hero-display">DAM Studio</h1>
-                <p class="lead">The future of 3D asset management.</p>
+                <h1 class="hero-display">DAM Studio <br><span class="hero-accent">3D Management</span></h1>
             @endif
+            
+            <ul class="hero-checklist">
+                <li>
+                    <svg viewBox="0 0 24 24" class="check-icon"><circle cx="12" cy="12" r="10" fill="var(--primary-on-dark)"/><path d="M7 12l3.5 3.5 7-7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Upload .blend, .fbx, and .obj files seamlessly</span>
+                </li>
+                <li>
+                    <svg viewBox="0 0 24 24" class="check-icon"><circle cx="12" cy="12" r="10" fill="var(--primary-on-dark)"/><path d="M7 12l3.5 3.5 7-7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Automatic conversion to web-ready .glb format</span>
+                </li>
+                <li>
+                    <svg viewBox="0 0 24 24" class="check-icon"><circle cx="12" cy="12" r="10" fill="var(--primary-on-dark)"/><path d="M7 12l3.5 3.5 7-7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Keep files private or share with the community</span>
+                </li>
+            </ul>
+
+            <div class="hero-actions">
+                <a href="{{ route('register') }}" class="btn-primary">Get Started</a>
+                <button class="btn-secondary" onclick="document.getElementById('grid-wrapper').scrollIntoView({behavior: 'smooth'})">Browse Gallery</button>
+            </div>
         </div>
 
-        @if(!$featuredAsset || !$featuredAsset->viewer_glb_path)
-        <div class="hero-placeholder" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-            <p>No featured 3D model available yet.</p>
+        <div class="hero-right">
+            <div class="hero-viewer-frame">
+                <div id="hero-canvas" class="hero-canvas"></div>
+                
+                @if(!$featuredAsset || !$featuredAsset->viewer_glb_path)
+                <div class="hero-placeholder">
+                    <p>No featured 3D model available yet.</p>
+                </div>
+                @else
+                <div class="hero-viewer-meta">
+                    <span class="meta-title">{{ $featuredAsset->title }}</span>
+                    <span class="meta-author">By {{ $featuredAsset->user->name ?? 'Studio' }}</span>
+                </div>
+                @endif
+            </div>
         </div>
-        @endif
     </section>
 
     <!-- Discovery Grid Section -->
@@ -99,7 +128,11 @@
 
             // Renderer
             const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Adjust to container size instead of window
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            renderer.setSize(width, height);
             renderer.setPixelRatio(window.devicePixelRatio);
             // Apple Design pedestal shadow equivalent in 3D: we rely on CSS or soft shadows
             renderer.shadowMap.enabled = true;
@@ -159,9 +192,11 @@
             // Handle Resize
             window.addEventListener('resize', onWindowResize, false);
             function onWindowResize() {
-                camera.aspect = window.innerWidth / window.innerHeight;
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                camera.aspect = width / height;
                 camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setSize(width, height);
             }
 
             // Animation Loop
