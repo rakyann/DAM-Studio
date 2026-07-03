@@ -69,6 +69,19 @@
         </div>
     </section>
 
+    <!-- Guest Gateway Modal -->
+    <div id="guest-modal" class="modal-overlay">
+        <div class="modal-content" style="position: relative;">
+            <button class="modal-close" id="close-modal">&times;</button>
+            <h3 class="display-lg" style="font-size: 24px;">Join DAM Studio</h3>
+            <p>Sign up to download master files, leave comments, and interact with the community.</p>
+            <div class="modal-actions">
+                <a href="{{ route('register') }}" class="btn-primary" style="text-align: center;">Create Account</a>
+                <a href="{{ route('login') }}" class="btn-secondary" style="text-align: center;">Log In</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Script for Hero Section 3D Viewer and Turntables -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -251,6 +264,41 @@
                     }
                     if (model) {
                         model.rotation.y = 0; // reset
+                    }
+                });
+            });
+
+            // Bind Guest Gateway Modal
+            const guestModal = document.getElementById('guest-modal');
+            const closeModal = document.getElementById('close-modal');
+            
+            if (closeModal) {
+                closeModal.addEventListener('click', () => {
+                    guestModal.classList.remove('active');
+                });
+            }
+
+            guestModal.addEventListener('click', (e) => {
+                if (e.target === guestModal) {
+                    guestModal.classList.remove('active');
+                }
+            });
+
+            const restrictedActions = document.querySelectorAll('.restricted-action');
+            restrictedActions.forEach(btn => {
+                // Check if user is auth by looking at a global var or just always showing modal for now
+                // Actually, if they are unauthenticated, we show the modal.
+                // We can inject a JS variable from Blade:
+                const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+                
+                btn.addEventListener('click', (e) => {
+                    if (!isAuthenticated) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        guestModal.classList.add('active');
+                    } else {
+                        // Let it do whatever it was going to do, or maybe redirect
+                        console.log('Action allowed');
                     }
                 });
             });
