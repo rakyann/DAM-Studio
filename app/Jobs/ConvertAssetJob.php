@@ -25,7 +25,6 @@ class ConvertAssetJob implements ShouldQueue
 
     public function __construct(
         public Asset $asset,
-        public string $tempFilePath,
     ) {}
 
     public function handle(ConversionService $conversionService): void

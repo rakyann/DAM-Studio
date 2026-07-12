@@ -127,15 +127,9 @@ class AssetController extends Controller
                 'thumbnail_path' => $thumbnailPath,
             ]);
             
-            // Buat temporary copy untuk proses konversi karena job/service akan mengubah nama dan menghapusnya
-            $tempPath = 'temp/' . basename($path);
-            Storage::disk('local')->copy($path, $tempPath);
-            $fullTempPath = Storage::disk('local')->path($tempPath);
-
             $tags = $request->tags
                 ? array_map('trim', explode(',', $request->tags))
                 : [];
-
 
             if (!empty($tags)) {
                 $tagIds = [];
@@ -151,7 +145,8 @@ class AssetController extends Controller
                 $asset->tags()->sync($tagIds);
             }
 
-            ConvertAssetJob::dispatchSync($asset, $fullTempPath);
+            // Dispatch async — biarkan queue worker yang menjalankan konversi
+            ConvertAssetJob::dispatch($asset);
 
             return redirect()->route('assets.show', $asset)
                 ->with('success', 'Asset berhasil diupload dan sedang diproses!');
