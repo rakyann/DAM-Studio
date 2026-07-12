@@ -1,17 +1,23 @@
 @php $thumbs = ['thumb-1','thumb-2','thumb-3','thumb-4','thumb-5','thumb-6']; @endphp
 @foreach($assets as $i => $asset)
 <a href="{{ route('assets.show', $asset) }}" class="asset-card">
-    <div class="card-thumb {{ $thumbs[$i % 6] }}">
-        <div class="thumb-icon">
-            @if($asset->thumbnail_path)
-                <img src="{{ asset('storage/' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}">
-            @else
+    <div class="card-thumbnail" style="background: #000; border-radius: var(--rounded-md) var(--rounded-md) 0 0;">
+        @if($asset->thumbnail_path)
+            <img src="{{ asset('storage/' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}">
+        @else
+            <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--body-muted);">
                 <div style="font-size: 24px; font-weight: 700; color: var(--ink-muted-48); text-transform: uppercase;">.{{ $asset->original_extension }}</div>
-            @endif
+            </div>
+        @endif
+        <div class="turntable-canvas"></div>
+        
+        <!-- Dashboard specifics -->
+        <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; color: white;">
+            {{ strtoupper($asset->category ?? '3D') }}
         </div>
-        <div class="card-badge">{{ strtoupper($asset->category ?? '3D') }}</div>
-        <div class="card-status s-{{ $asset->status }}">{{ $asset->status }}</div>
-        <div class="card-overlay"><div class="overlay-btn">Preview →</div></div>
+        <div style="position: absolute; top: 12px; right: 12px; background: {{ $asset->status === 'completed' ? '#10b981' : ($asset->status === 'failed' ? '#ef4444' : '#f59e0b') }}; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; color: white; text-transform: uppercase;">
+            {{ $asset->status }}
+        </div>
     </div>
     <div class="card-body">
         <div class="card-title-row">

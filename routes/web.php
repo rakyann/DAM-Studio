@@ -17,6 +17,13 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('assets', AssetController::class)
         ->only(['index', 'create', 'store', 'destroy']);
+
+    // Admin Routes
+    Route::middleware([\App\Http\Middleware\IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');
+        Route::patch('/assets/{asset}/toggle-visibility', [\App\Http\Controllers\AdminController::class, 'toggleVisibility'])->name('assets.toggle-visibility');
+        Route::delete('/assets/{asset}', [\App\Http\Controllers\AdminController::class, 'destroyAsset'])->name('assets.destroy');
+    });
 });
 
 // Accessible by anyone (or maybe just auth? Tags might be public, but usually public is fine)

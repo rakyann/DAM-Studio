@@ -15,34 +15,40 @@ class ConversionService
         $this->blenderPath = config('app.blender_path', '/usr/bin/blender');
     }
 
-    public function convert(string $localFilePath, string $extension, string $s3BasePath): array
+    public function convert(int $assetId, string $s3BasePath): array
     {
         $this->ensureBlenderExists();
 
-        // Rename temp file supaya punya ekstensi yang benar
-        $renamedPath = $localFilePath . '.' . $extension;
-        rename($localFilePath, $renamedPath);
-        $localFilePath = $renamedPath;
-
-        $tempGlb   = sys_get_temp_dir() . '/' . uniqid('glb_') . '.glb';
-        $tempThumb = sys_get_temp_dir() . '/' . uniqid('thumb_') . '.jpg';
-
+        $asset = Asset::findOrFail($assetId);
+        
         try {
+            $asset->update(['status' => AssetStatus::PROCESSING]);
+
+            $localFilePath = Storage::disk('local')->path($asset->original_file_path);
+            $extension = $asset->original_extension;
+            
+            $tempGlb = storage_path('app/private/temp/' . Str::random(40) . '.glb');
+            $tempThumb = storage_path('app/private/temp/' . Str::random(40) . '.jpg');
+
             $this->runBlenderConversion($localFilePath, $extension, $tempGlb);
-            $this->generateThumbnail($tempGlb, $tempThumb);
-
+            
             $glbPath   = $s3BasePath . '/preview.glb';
-            $thumbPath = $s3BasePath . '/thumbnail.jpg';
-
-            // Simpan ke public storage (local)
             Storage::disk('public')->put($glbPath, file_get_contents($tempGlb));
-            Storage::disk('public')->put($thumbPath, file_get_contents($tempThumb));
-
-            return [
+            
+            $result = [
                 'converted_file_path' => $glbPath,
-                'thumbnail_path'      => $thumbPath,
                 'file_size'           => filesize($tempGlb),
             ];
+
+            // Generate thumbnail only if user didn't upload a custom one
+            if (empty($asset->thumbnail_path)) {
+                $this->generateThumbnail($tempGlb, $tempThumb);
+                $thumbPath = $s3BasePath . '/thumbnail.jpg';
+                Storage::disk('public')->put($thumbPath, file_get_contents($tempThumb));
+                $result['thumbnail_path'] = $thumbPath;
+            }
+
+            return $result;
 
         } finally {
             $this->cleanup($localFilePath, $tempGlb, $tempThumb);

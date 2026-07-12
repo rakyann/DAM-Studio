@@ -46,7 +46,9 @@ class AssetController extends Controller
 
     public function index(Request $request)
     {
-        $query = Asset::where('user_id', Auth::id())->latest();
+        $query = Auth::user()->isAdmin() 
+            ? Asset::latest() 
+            : Asset::where('user_id', Auth::id())->latest();
 
         if ($request->has('category') && !empty($request->category)) {
             $query->where('category', $request->category);
@@ -62,11 +64,9 @@ class AssetController extends Controller
         }
 
         // Fetch top 3 featured assets (is_staff_pick first, then fallback to newest)
-        $featuredAssets = Asset::where('user_id', Auth::id())
-            ->orderByDesc('is_staff_pick')
-            ->latest()
-            ->take(3)
-            ->get();
+        $featuredAssets = Auth::user()->isAdmin()
+            ? Asset::orderByDesc('is_staff_pick')->latest()->take(3)->get()
+            : Asset::where('user_id', Auth::id())->orderByDesc('is_staff_pick')->latest()->take(3)->get();
 
         return view('assets.index', compact('assets', 'featuredAssets'));
     }
@@ -88,38 +88,53 @@ class AssetController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title'     => 'required|string|max:255',
-            'category' => 'nullable|string|max:100',
-            'tags'     => 'nullable|string',
-            'version'  => 'required|integer|min:1',
-            'file'     => 'required|file|extensions:blend,fbx,obj|max:512000',
+            'title' => 'required|string|max:255',
+            'category' => 'nullable|string',
+            'version' => 'required|integer|min:1',
+            'tags' => 'nullable|string',
+            'file' => 'required|file|max:512000', // 500MB max
+            'thumbnail' => 'nullable|image|max:10240', // Max 10MB
         ]);
 
-        $file         = $request->file('file');
-        $extension    = strtolower($file->getClientOriginalExtension());
-        
-        // Simpan file original secara permanen di disk local (secure_assets) sesuai PRD
-        $originalPath = $file->store('secure_assets', 'local');
+        $file = $request->file('file');
+        $ext = strtolower($file->getClientOriginalExtension());
+        $validExt = ['blend', 'fbx', 'obj'];
+
+        if (!in_array($ext, $validExt)) {
+            return back()->withInput()->with('error', 'Hanya file .blend, .fbx, atau .obj yang diizinkan!');
+        }
+
+        $path = $file->store('secure_assets');
+
+        $thumbnailPath = null;
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailPath = $request->file('thumbnail')->store('public/thumbnails');
+            // Remove 'public/' prefix for easy asset() rendering later
+            $thumbnailPath = str_replace('public/', '', $thumbnailPath);
+        }
+
+        $asset = Asset::create([
+            'user_id' => Auth::id(),
+            'title' => $request->title,
+            'category' => $request->category ?? 'other',
+            'original_extension' => $ext,
+            'original_file_path' => $path,
+            'master_zip_path' => $path, // sementara sama
+            'version' => $request->version,
+            'status' => \App\Enums\AssetStatus::QUEUED,
+            'visibility' => \App\Enums\AssetVisibility::PUBLIC,
+            'thumbnail_path' => $thumbnailPath,
+        ]);
         
         // Buat temporary copy untuk proses konversi karena job/service akan mengubah nama dan menghapusnya
-        $tempPath     = 'temp/' . basename($originalPath);
-        Storage::disk('local')->put($tempPath, Storage::disk('local')->readStream($originalPath));
+        $tempPath     = 'temp/' . basename($path);
+        Storage::disk('local')->put($tempPath, Storage::disk('local')->readStream($path));
         $fullTempPath = Storage::disk('local')->path($tempPath);
 
         $tags = $request->tags
             ? array_map('trim', explode(',', $request->tags))
             : [];
 
-        $asset = Asset::create([
-            'user_id'            => Auth::id(),
-            'title'              => $request->title,
-            'category'           => $request->category,
-            'version'            => $request->version,
-            'original_extension' => $extension,
-            'original_file_path' => $originalPath,
-            'master_zip_path'    => $originalPath,
-            'status'             => AssetStatus::QUEUED->value,
-        ]);
 
         if (!empty($tags)) {
             $tagIds = [];

@@ -58,6 +58,26 @@
                 @error('file')<p class="form-error">{{ $message }}</p>@enderror
             </div>
 
+            <hr class="form-divider">
+
+            <div class="form-group">
+                <label class="form-label" for="thumbInput">Custom Thumbnail (Opsional)</label>
+                <p class="form-hint" style="margin-bottom:12px;">Jika dikosongkan, sistem akan otomatis me-render thumbnail dari file 3D-mu menggunakan Eevee.</p>
+                <div class="dropzone" id="thumbDropzone" tabindex="0" onkeydown="if(event.key==='Enter') document.getElementById('thumbInput').click()" onclick="document.getElementById('thumbInput').click()">
+                    <div class="dropzone-icon">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                    </div>
+                    <div class="dropzone-title">Upload Thumbnail PNG/JPG</div>
+                    <div class="dropzone-sub">atau <em>klik untuk browse</em></div>
+                </div>
+                <input type="file" name="thumbnail" id="thumbInput" accept="image/png, image/jpeg, image/webp" style="display:none" onchange="handleThumbFile(this)">
+                <div id="thumbPreview" style="display:none" class="file-selected">
+                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                    <span id="thumbName"></span>
+                </div>
+                @error('thumbnail')<p class="form-error">{{ $message }}</p>@enderror
+            </div>
+
             <button type="submit" class="btn-submit" id="submitBtn">
                 <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
                 Upload & Convert
@@ -74,6 +94,13 @@ function handleFile(input) {
         document.getElementById('filePreview').style.display = 'flex';
     }
 }
+function handleThumbFile(input) {
+    if (input.files[0]) {
+        document.getElementById('thumbName').textContent = input.files[0].name;
+        document.getElementById('thumbPreview').style.display = 'flex';
+    }
+}
+
 const dz = document.getElementById('dropzone');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
@@ -83,6 +110,17 @@ dz.addEventListener('drop', e => {
     fi.files = e.dataTransfer.files;
     handleFile(fi);
 });
+
+const tz = document.getElementById('thumbDropzone');
+tz.addEventListener('dragover', e => { e.preventDefault(); tz.classList.add('drag'); });
+tz.addEventListener('dragleave', () => tz.classList.remove('drag'));
+tz.addEventListener('drop', e => {
+    e.preventDefault(); tz.classList.remove('drag');
+    const ti = document.getElementById('thumbInput');
+    ti.files = e.dataTransfer.files;
+    handleThumbFile(ti);
+});
+
 document.getElementById('uploadForm').addEventListener('submit', () => {
     const btn = document.getElementById('submitBtn');
     btn.innerHTML = 'Converting... please wait';

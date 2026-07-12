@@ -20,6 +20,9 @@
         </a>
     </div>
     <div class="nav-links">
+        @if(auth()->check() && auth()->user()->isAdmin())
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" style="color: var(--primary-on-dark); font-weight: 600;">Admin Panel</a>
+        @endif
         <a href="{{ route('assets.index') }}" class="nav-link {{ request()->routeIs('assets.index') ? 'active' : '' }}">Library</a>
         <a href="{{ route('assets.create') }}" class="nav-link {{ request()->routeIs('assets.create') ? 'active' : '' }}">Upload</a>
     </div>

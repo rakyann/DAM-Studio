@@ -35,18 +35,35 @@ def render_thumbnail(input_path: str, output_path: str):
 
     bpy.context.scene.camera = cam
 
-    # Setup lighting
+    # Setup lighting (3-point lighting)
     bpy.ops.object.light_add(type='SUN', location=(5, 5, 10))
-    bpy.ops.object.light_add(type='AREA', location=(-3, -3, 4))
+    sun = bpy.context.object
+    sun.data.energy = 2.0
+    
+    bpy.ops.object.light_add(type='AREA', location=(-5, -5, 5))
+    fill = bpy.context.object
+    fill.data.energy = 500.0
+    
+    bpy.ops.object.light_add(type='AREA', location=(0, 5, -5))
+    rim = bpy.context.object
+    rim.data.energy = 1000.0
 
     # Render settings
     scene = bpy.context.scene
-    scene.render.engine           = 'CYCLES'
-    scene.render.resolution_x    = 400
-    scene.render.resolution_y    = 300
+    # Blender 4.x uses BLENDER_EEVEE_NEXT, fallback to BLENDER_EEVEE if needed
+    try:
+        scene.render.engine = 'BLENDER_EEVEE_NEXT'
+    except:
+        scene.render.engine = 'BLENDER_EEVEE'
+        
+    scene.render.resolution_x    = 800
+    scene.render.resolution_y    = 600
     scene.render.image_settings.file_format = 'JPEG'
+    scene.render.image_settings.quality = 90
     scene.render.filepath         = output_path
-    scene.cycles.samples          = 32
+    
+    # EEVEE specific settings
+    scene.eevee.taa_render_samples = 64
 
     bpy.ops.render.render(write_still=True)
     print(f"Thumbnail saved: {output_path}")
