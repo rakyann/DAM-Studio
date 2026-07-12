@@ -6,7 +6,7 @@
                 data-glb="{{ $asset->viewer_glb_path ? asset('storage/' . $asset->viewer_glb_path) : '' }}">
                 <div class="card-thumbnail" style="background: #000; border-radius: var(--rounded-md) var(--rounded-md) 0 0;">
                     @if($asset->thumbnail_path)
-                        <img src="{{ asset('storage/' . 'public' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}"
+                        <img src="{{ asset('storage/' . 'public/' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}"
                             style="transition: opacity 0.3s;">
                         {{-- testing --}}
                     @else
