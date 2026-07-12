@@ -85,92 +85,87 @@ class AssetController extends Controller
         return view('assets.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'category' => 'nullable|string',
-            'version' => 'required|integer|min:1',
-            'tags' => 'nullable|string',
-            'file' => 'required|file|max:512000', // 500MB max
-            'thumbnail' => 'nullable|image|max:10240', // Max 10MB
-        ]);
+        public function store(Request $request)
+        {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'category' => 'nullable|string',
+                'version' => 'required|integer|min:1',
+                'tags' => 'nullable|string',
+                'file' => 'required|file|max:512000', // 500MB max
+                'thumbnail' => 'nullable|image|max:10240', // Max 10MB
+            ]);
 
-        $file = $request->file('file');
-        $ext = strtolower($file->getClientOriginalExtension());
-        $validExt = ['blend', 'fbx', 'obj'];
+            $file = $request->file('file');
+            $ext = strtolower($file->getClientOriginalExtension());
+            $validExt = ['blend', 'fbx', 'obj'];
 
-        if (!in_array($ext, $validExt)) {
-            return back()->withInput()->with('error', 'Hanya file .blend, .fbx, atau .obj yang diizinkan!');
-        }
-
-        $path = $file->store('secure_assets');
-
-        $thumbnailPath = null;
-        if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('public/thumbnails');
-            // Remove 'public/' prefix for easy asset() rendering later
-            $thumbnailPath = str_replace('public/', '', $thumbnailPath);
-        }
-
-        $asset = Asset::create([
-            'user_id' => Auth::id(),
-            'title' => $request->title,
-            'category' => $request->category ?? 'other',
-            'original_extension' => $ext,
-            'original_file_path' => $path,
-            'master_zip_path' => $path, // sementara sama
-            'version' => $request->version,
-            'status' => \App\Enums\AssetStatus::QUEUED,
-            'visibility' => \App\Enums\AssetVisibility::PUBLIC,
-            'thumbnail_path' => $thumbnailPath,
-        ]);
-        
-        // Buat temporary copy untuk proses konversi karena job/service akan mengubah nama dan menghapusnya
-        $tempPath     = 'temp/' . basename($path);
-        // dd($tempPath);
-        $stream = Storage::disk('local')->readStream($tempPath);
- dd([
-    'path' => $path,
-    'local_full_path' => Storage::disk('local')->path($path),
-    'local_exists' => Storage::disk('local')->exists($path),
-    'public_exists' => Storage::disk('public')->exists($path),
-]);
-        if ($stream === false || $stream === null) {
-            throw new \RuntimeException("File tidak ditemukan atau gagal dibaca: {$tempPath}");
-        }
-
-        Storage::disk('local')->writeStream($tempPath, $stream);
-
-        if (is_resource($stream)) {
-            fclose($stream);
-        }
-        $fullTempPath = Storage::disk('local')->path($tempPath);
-
-        $tags = $request->tags
-            ? array_map('trim', explode(',', $request->tags))
-            : [];
-
-
-        if (!empty($tags)) {
-            $tagIds = [];
-            foreach ($tags as $tagName) {
-                if (empty($tagName)) continue;
-                $slug = \Illuminate\Support\Str::slug($tagName);
-                $tag = \App\Models\Tag::firstOrCreate(
-                    ['slug' => $slug],
-                    ['name' => $tagName]
-                );
-                $tagIds[] = $tag->id;
+            if (!in_array($ext, $validExt)) {
+                return back()->withInput()->with('error', 'Hanya file .blend, .fbx, atau .obj yang diizinkan!');
             }
-            $asset->tags()->sync($tagIds);
+
+            $path = $file->store('secure_assets');
+
+            $thumbnailPath = null;
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailPath = $request->file('thumbnail')->store('public/thumbnails');
+                // Remove 'public/' prefix for easy asset() rendering later
+                $thumbnailPath = str_replace('public/', '', $thumbnailPath);
+            }
+
+            $asset = Asset::create([
+                'user_id' => Auth::id(),
+                'title' => $request->title,
+                'category' => $request->category ?? 'other',
+                'original_extension' => $ext,
+                'original_file_path' => $path,
+                'master_zip_path' => $path, // sementara sama
+                'version' => $request->version,
+                'status' => \App\Enums\AssetStatus::QUEUED,
+                'visibility' => \App\Enums\AssetVisibility::PUBLIC,
+                'thumbnail_path' => $thumbnailPath,
+            ]);
+            
+            // Buat temporary copy untuk proses konversi karena job/service akan mengubah nama dan menghapusnya
+            $tempPath     = 'temp/' . basename($path);
+            // dd($tempPath);
+            $stream = Storage::disk('local')->readStream($path);
+            
+            if ($stream === false || $stream === null) {
+                throw new \RuntimeException("File tidak ditemukan atau gagal dibaca: {$tempPath}");
+            }
+
+            Storage::disk('local')->writeStream($tempPath, $stream);
+
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+            $fullTempPath = Storage::disk('local')->path($tempPath);
+
+            $tags = $request->tags
+                ? array_map('trim', explode(',', $request->tags))
+                : [];
+
+
+            if (!empty($tags)) {
+                $tagIds = [];
+                foreach ($tags as $tagName) {
+                    if (empty($tagName)) continue;
+                    $slug = \Illuminate\Support\Str::slug($tagName);
+                    $tag = \App\Models\Tag::firstOrCreate(
+                        ['slug' => $slug],
+                        ['name' => $tagName]
+                    );
+                    $tagIds[] = $tag->id;
+                }
+                $asset->tags()->sync($tagIds);
+            }
+
+            ConvertAssetJob::dispatchSync($asset, $fullTempPath);
+
+            return redirect()->route('assets.show', $asset)
+                ->with('success', 'Asset berhasil diupload dan sedang diproses!');
         }
-
-        ConvertAssetJob::dispatchSync($asset, $fullTempPath);
-
-        return redirect()->route('assets.show', $asset)
-            ->with('success', 'Asset berhasil diupload dan sedang diproses!');
-    }
 
     public function show(Asset $asset)
     {
