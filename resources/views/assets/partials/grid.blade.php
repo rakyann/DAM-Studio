@@ -3,7 +3,7 @@
 <a href="{{ route('assets.show', $asset) }}" class="asset-card">
     <div class="card-thumbnail" style="background: #000; border-radius: var(--rounded-md) var(--rounded-md) 0 0;">
         @if($asset->thumbnail_path)
-            <img src="{{ asset('storage/' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}">
+            <img src="{{ asset('storage/' . 'public' . $asset->thumbnail_path) }}" alt="{{ $asset->title }}">
         @else
             <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--body-muted);">
                 <div style="font-size: 24px; font-weight: 700; color: var(--ink-muted-48); text-transform: uppercase;">.{{ $asset->original_extension }}</div>
