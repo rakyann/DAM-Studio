@@ -26,7 +26,8 @@
         .hero-content {
             position: relative;
             z-index: 10;
-            max-width: 800px;
+            max-width: 1200px;
+            width: 100%;
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -146,7 +147,7 @@
         <div id="hero-bg-canvas" class="hero-bg-canvas"></div>
         
         <div class="hero-content animate-fade-in-up">
-            <span class="hero-badge glass-panel" style="padding: 8px 24px; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;">Next-Gen Asset Management</span>
+            <span class="hero-badge glass-panel" style="display: inline-block; margin: 0 auto; padding: 8px 24px; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; text-align: center;">Next-Gen Asset Management</span>
             
             <h1 class="hero-display" style="font-size: 72px; line-height: 1.1;">
                 Elevate your 3D workflow <br>

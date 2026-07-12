@@ -45,6 +45,8 @@ body {
   background-color: var(--canvas);
   -webkit-font-smoothing: antialiased;
   line-height: 1.47;
+  min-width: 1024px;
+  overflow-x: auto;
 }
 
 a {

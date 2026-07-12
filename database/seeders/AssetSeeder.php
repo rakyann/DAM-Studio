@@ -29,6 +29,7 @@ class AssetSeeder extends Seeder
             'is_staff_pick' => true,
             'master_zip_path' => 'dummy.zip',
             'viewer_glb_path' => null, // Just UI placeholder test since no actual GLB file exists
+            'original_extension' => 'blend',
         ]);
 
         $asset->tags()->sync([$tag1->id, $tag2->id]);
