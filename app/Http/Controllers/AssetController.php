@@ -127,25 +127,8 @@ class AssetController extends Controller
             ]);
             
             // Buat temporary copy untuk proses konversi karena job/service akan mengubah nama dan menghapusnya
-            $tempPath     = 'temp/' . basename($path);
-            // dd($tempPath);
-            $stream = Storage::disk('local')->readStream($tempPath);
-            // dd([
-            //     $tempPath,
-            //     $stream,
-            //     Storage::disk('local')->exists($path),
-            //     Storage::disk('local')->exists($tempPath),
-            // ]);
-            if ($stream === false || $stream === null) {
-                throw new \RuntimeException("File tidak ditemukan atau gagal dibaca: {$tempPath}");
-            }
-
-            Storage::disk('local')->writeStream($tempPath, $stream);
-
-            if (is_resource($stream)) {
-                fclose($stream);
-            }
-            Storage::copy($path, $tempPath);
+            $tempPath = 'temp/' . basename($path);
+            Storage::disk('local')->copy($path, $tempPath);
             $fullTempPath = Storage::disk('local')->path($tempPath);
 
             $tags = $request->tags
