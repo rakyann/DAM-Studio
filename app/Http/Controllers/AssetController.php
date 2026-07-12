@@ -104,7 +104,8 @@ class AssetController extends Controller
                 return back()->withInput()->with('error', 'Hanya file .blend, .fbx, atau .obj yang diizinkan!');
             }
 
-            $path = $file->store('secure_assets');
+            // Simpan dengan extension asli agar Blender bisa mengenali format file
+            $path = $file->storeAs('secure_assets', \Illuminate\Support\Str::random(40) . '.' . $ext);
 
             $thumbnailPath = null;
             if ($request->hasFile('thumbnail')) {
