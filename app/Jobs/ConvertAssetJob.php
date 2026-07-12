@@ -40,8 +40,7 @@ class ConvertAssetJob implements ShouldQueue
 
         try {
             $result = $conversionService->convert(
-                localFilePath: $this->tempFilePath,
-                extension: $this->asset->original_extension,
+                assetId: $this->asset->id,
                 s3BasePath: $s3BasePath,
             );
 
