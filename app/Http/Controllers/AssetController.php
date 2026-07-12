@@ -130,12 +130,12 @@ class AssetController extends Controller
             $tempPath     = 'temp/' . basename($path);
             // dd($tempPath);
             $stream = Storage::disk('local')->readStream($tempPath);
-            dd([
-                $tempPath,
-                $stream,
-                Storage::disk('local')->exists($path),
-                Storage::disk('local')->exists($tempPath),
-            ]);
+            // dd([
+            //     $tempPath,
+            //     $stream,
+            //     Storage::disk('local')->exists($path),
+            //     Storage::disk('local')->exists($tempPath),
+            // ]);
             if ($stream === false || $stream === null) {
                 throw new \RuntimeException("File tidak ditemukan atau gagal dibaca: {$tempPath}");
             }
