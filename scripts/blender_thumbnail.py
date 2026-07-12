@@ -48,22 +48,28 @@ def render_thumbnail(input_path: str, output_path: str):
     rim = bpy.context.object
     rim.data.energy = 1000.0
 
-    # Render settings
+    # Render settings optimized for weak VPS (CPU only)
     scene = bpy.context.scene
-    # Blender 4.x uses BLENDER_EEVEE_NEXT, fallback to BLENDER_EEVEE if needed
+    
+    # Force legacy EEVEE if possible, NEXT is too heavy for CPU
     try:
-        scene.render.engine = 'BLENDER_EEVEE_NEXT'
-    except:
         scene.render.engine = 'BLENDER_EEVEE'
+    except:
+        scene.render.engine = 'BLENDER_EEVEE_NEXT'
         
-    scene.render.resolution_x    = 800
-    scene.render.resolution_y    = 600
+    scene.render.resolution_x    = 600
+    scene.render.resolution_y    = 450
     scene.render.image_settings.file_format = 'JPEG'
-    scene.render.image_settings.quality = 90
+    scene.render.image_settings.quality = 85
     scene.render.filepath         = output_path
     
-    # EEVEE specific settings
-    scene.eevee.taa_render_samples = 64
+    # Low-end VPS specific settings
+    try:
+        scene.eevee.taa_render_samples = 16
+        scene.eevee.use_shadows = False
+        scene.eevee.use_volumetric = False
+    except:
+        pass
 
     bpy.ops.render.render(write_still=True)
     print(f"Thumbnail saved: {output_path}")
