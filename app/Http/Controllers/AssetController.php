@@ -105,7 +105,21 @@ class AssetController extends Controller
             }
 
             // Simpan dengan extension asli agar Blender bisa mengenali format file
-            $path = $file->storeAs('secure_assets', \Illuminate\Support\Str::random(40) . '.' . $ext);
+            $filename = \Illuminate\Support\Str::random(40) . '.' . $ext;
+            $path = $file->storeAs('secure_assets', $filename, 'local');
+
+            \Illuminate\Support\Facades\Log::info('Upload debug', [
+                'original_name' => $file->getClientOriginalName(),
+                'stored_path' => $path,
+                'full_path' => Storage::disk('local')->path($path),
+                'exists' => Storage::disk('local')->exists($path),
+                'file_size' => $file->getSize(),
+            ]);
+
+            if (!Storage::disk('local')->exists($path)) {
+                \Illuminate\Support\Facades\Log::error('FILE NOT STORED!', ['path' => $path]);
+                return back()->withInput()->with('error', 'Gagal menyimpan file. Cek permission folder storage.');
+            }
 
             $thumbnailPath = null;
             if ($request->hasFile('thumbnail')) {
