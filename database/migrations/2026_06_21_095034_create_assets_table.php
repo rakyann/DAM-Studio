@@ -21,7 +21,7 @@ public function up(): void
         $table->bigInteger('file_size')->default(0);
         $table->integer('poly_count')->nullable();
         $table->json('tags')->nullable();
-        $table->enum('status', ['pending', 'processing', 'done', 'failed'])->default('pending');
+        $table->enum('status', ['queued', 'processing', 'completed', 'failed'])->default('queued');
         $table->timestamps();
     });
 }

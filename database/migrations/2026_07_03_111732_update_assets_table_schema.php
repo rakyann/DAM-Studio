@@ -25,9 +25,6 @@ return new class extends Migration
             $table->text('error_log')->nullable()->after('status');
         });
 
-        if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
-            \Illuminate\Support\Facades\DB::statement("ALTER TABLE assets MODIFY COLUMN status ENUM('queued', 'processing', 'completed', 'failed') DEFAULT 'queued'");
-        }
     }
 
     /**
@@ -41,9 +38,5 @@ return new class extends Migration
             $table->renameColumn('polygon_count', 'poly_count');
             $table->dropColumn(['visibility', 'is_staff_pick', 'master_zip_path', 'vertex_count', 'error_log']);
         });
-        
-        if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
-            \Illuminate\Support\Facades\DB::statement("ALTER TABLE assets MODIFY COLUMN status ENUM('pending', 'processing', 'done', 'failed') DEFAULT 'pending'");
-        }
     }
 };
