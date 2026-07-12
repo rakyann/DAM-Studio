@@ -48,22 +48,21 @@ def render_thumbnail(input_path: str, output_path: str):
     rim = bpy.context.object
     rim.data.energy = 1000.0
 
-    # Render settings
+    # Maximum Optimization for ultra-weak VPS (Contabo)
     scene = bpy.context.scene
-    # Blender 4.x uses BLENDER_EEVEE_NEXT, fallback to BLENDER_EEVEE if needed
-    try:
-        scene.render.engine = 'BLENDER_EEVEE_NEXT'
-    except:
-        scene.render.engine = 'BLENDER_EEVEE'
-        
-    scene.render.resolution_x    = 800
-    scene.render.resolution_y    = 600
-    scene.render.image_settings.file_format = 'JPEG'
-    scene.render.image_settings.quality = 90
-    scene.render.filepath         = output_path
     
-    # EEVEE specific settings
-    scene.eevee.taa_render_samples = 64
+    # WORKBENCH is the solid viewport renderer. It has virtually zero CPU impact.
+    scene.render.engine = 'BLENDER_WORKBENCH'
+    
+    # Use MatCap or Studio lighting for decent look without calculating real lights
+    bpy.context.scene.display.shading.light = 'STUDIO'
+    bpy.context.scene.display.shading.color_type = 'MATERIAL'
+        
+    scene.render.resolution_x    = 400
+    scene.render.resolution_y    = 300
+    scene.render.image_settings.file_format = 'JPEG'
+    scene.render.image_settings.quality = 80
+    scene.render.filepath         = output_path
 
     bpy.ops.render.render(write_still=True)
     print(f"Thumbnail saved: {output_path}")

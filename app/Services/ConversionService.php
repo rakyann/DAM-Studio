@@ -49,6 +49,9 @@ class ConversionService
                 $thumbPath = $s3BasePath . '/thumbnail.jpg';
                 Storage::disk('public')->put($thumbPath, file_get_contents($tempThumb));
                 $result['thumbnail_path'] = $thumbPath;
+            } else {
+                // Keep the existing custom thumbnail
+                $result['thumbnail_path'] = $asset->thumbnail_path;
             }
 
             return $result;
