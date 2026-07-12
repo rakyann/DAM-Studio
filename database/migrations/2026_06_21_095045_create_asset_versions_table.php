@@ -13,6 +13,7 @@ public function up(): void
         $table->foreignId('asset_id')->constrained()->onDelete('cascade');
         $table->integer('version_number');
         $table->string('file_path');
+        // $table->enum('status', ['pending', 'processing', 'done', 'failed'])->default('pending');
         $table->bigInteger('file_size')->default(0);
         $table->timestamp('created_at')->useCurrent();
     });

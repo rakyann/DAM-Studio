@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('thumbnail_path')->nullable()->after('viewer_glb_path');
             $table->integer('polygon_count')->nullable()->after('file_size');
             $table->integer('vertex_count')->nullable()->after('polygon_count');
-            $table->enum('status', ['queued', 'processing', 'completed', 'failed'])->default('queued')->after('vertex_count');
+            $table->enum('status', ['queued', 'processing', 'done', 'failed'])->default('queued')->after('vertex_count');
             $table->text('error_log')->nullable()->after('status');
         });
 

@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(AssetSeeder::class);
+        User::create(['name' => 'Admin User', 'email' => 'admin@damstudio.com', 'password' => bcrypt('password')]);
+        // $this->call(AssetSeeder::class);
     }
 }

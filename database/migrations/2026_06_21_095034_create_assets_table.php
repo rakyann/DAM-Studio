@@ -21,7 +21,11 @@ public function up(): void
         $table->bigInteger('file_size')->default(0);
         $table->integer('poly_count')->nullable();
         $table->json('tags')->nullable();
+<<<<<<< Updated upstream
         $table->enum('status', ['queued', 'processing', 'completed', 'failed'])->default('queued');
+=======
+        $table->enum('status', ['queued', 'processing', 'done', 'failed'])->default('queued');
+>>>>>>> Stashed changes
         $table->timestamps();
     });
 }
