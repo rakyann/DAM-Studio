@@ -92,7 +92,7 @@ class AssetController extends Controller
                 'category' => 'nullable|string',
                 'version' => 'required|integer|min:1',
                 'tags' => 'nullable|string',
-                'file' => 'required|file|max:512000', // 500MB max
+                'file' => 'required|file|max:2097152', // 2GB max
                 'thumbnail' => 'nullable|image|max:10240', // Max 10MB
             ]);
 
